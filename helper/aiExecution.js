@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai"; // 🐙 Added the OpenAI SDK specifically for OpenRouter! ✨
 
 /**
  * 🟢 Low-level Groq Execution
@@ -23,6 +24,25 @@ export const executeGoogle = async (apiKey, model, prompt) => {
   const gemini = genAI.getGenerativeModel({ model: modelName });
   const result = await gemini.generateContent(prompt);
   return result.response.text().trim();
+};
+
+/**
+ * 🟣 Low-level OpenRouter Execution 🐙✨
+ * Uses the OpenAI SDK but points the baseURL directly to OpenRouter's magical gateway! 🌐
+ */
+export const executeOpenRouter = async (apiKey, model, prompt, temperature) => {
+  const openai = new OpenAI({
+    baseURL: "https://openrouter.ai/api/v1", // 🎯 Crucial: Reroute to OpenRouter!
+    apiKey: apiKey,
+  });
+  
+  const completion = await openai.chat.completions.create({
+    model: model,
+    messages: [{ role: "user", content: prompt }],
+    temperature: temperature,
+  });
+  
+  return completion.choices[0].message.content.trim();
 };
 
 /**
